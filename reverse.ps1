@@ -103,7 +103,7 @@ try {
                     $input_stream.Flush();
                 }
             }
-            Start-Sleep -Milliseconds 50 # Kurze Pause, um CPU-Auslastung zu reduzieren und andere Threads laufen zu lassen
+            
         } catch {
             Write-Log "Error in main loop (client input): $($_.Exception.Message)"
             break; # Verbindung verloren oder anderer Fehler in der Schleife
