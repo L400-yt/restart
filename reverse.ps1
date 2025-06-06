@@ -114,6 +114,14 @@ try {
 } catch {
     # Dieser Block fängt allgemeine Fehler vor dem Start der Hauptschleife ab
     Write-Log "CRITICAL SCRIPT ERROR: $($_.Exception.Message) - StackTrace: $($_.ScriptStackTrace)"
-} 
+} finally {
+    # Aufräumen: Schließe alle offenen Ressourcen, auch wenn ein Fehler auftritt
+    Write-Log "Attempting cleanup."
+    if($client.Connected) {
+        try { $client.Close(); Write-Log "Client closed." } catch { Write-Log "Error closing client: $($_.Exception.Message)" }
+    }
+    if($process -and -not $process.HasExited) { # Sicherstellen, dass Prozess existiert, bevor Close aufgerufen wird
+        try { $process.Close(); Write-Log "Process closed." } catch { Write-Log "Error closing process: $($_.Exception.Message)" }
+    }
     Write-Log "Script finished."
 }
