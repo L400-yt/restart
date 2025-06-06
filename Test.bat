@@ -1,4 +1,5 @@
 @echo off
 
+:test
 echo Tester
-pause
+goto test
