@@ -1,5 +1,6 @@
 # PowerShell-only Reverse Shell (keine cmd.exe, keine externen Tools)
 # Dieses Skript verbindet sich mit einem Listener und führt PowerShell-Befehle aus.
+# New
 
 # --- KONFIGURATION START ---
 Param(
